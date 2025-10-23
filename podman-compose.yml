@@ -1,0 +1,16 @@
+version: "1.0"
+services:
+  postgres:
+    image: docker.io/library/postgres:15
+    container_name: nest-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nest
+      POSTGRES_PASSWORD: nest
+      POSTGRES_DB: nestdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+volumes:
+  pg_data: {}
