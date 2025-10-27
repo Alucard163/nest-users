@@ -7,15 +7,15 @@ import {UserEntity} from "../../domain/entities/user.entity";
 export class RegisterUserUseCase {
     constructor(
         @Inject(USER_REPO)
-        private readonly users: UserRepositoryPort,
+        private readonly _users: UserRepositoryPort,
         @Inject(TOKEN_SERVICE)
-        private readonly tokens: TokenServicePort,
+        private readonly _tokens: TokenServicePort,
         @Inject(HASHER)
-        private readonly hasher: HasherPort,
+        private readonly _hasher: HasherPort,
     ) {}
 
     async execute(input: { login: string; email: string; password: string; age: number; about: string }) {
-        const exists = await this.users.findByLogin(input.login);
+        const exists = await this._users.findByLogin(input.login);
         if (exists) throw new ConflictException('Такой логин уже существует');
 
         const now = new Date();
@@ -23,7 +23,7 @@ export class RegisterUserUseCase {
             crypto.randomUUID(),
             input.login,
             input.email,
-            await this.hasher.hash(input.password),
+            await this._hasher.hash(input.password),
             input.age,
             input.about,
             null,
@@ -31,11 +31,11 @@ export class RegisterUserUseCase {
             now,
             now
         );
-        await this.users.create(entity);
+        await this._users.create(entity);
 
-        const pair = await this.tokens.issuePair(entity.id, entity.login);
-        entity.currentHashedRt = await this.hasher.hash(pair.refresh);
-        await this.users.save(entity);
+        const pair = await this._tokens.issuePair(entity.id, entity.login);
+        entity.currentHashedRt = await this._hasher.hash(pair.refresh);
+        await this._users.save(entity);
 
         return { user: entity, tokens: pair };
     }
