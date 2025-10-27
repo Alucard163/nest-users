@@ -1,8 +1,6 @@
 import { UserEntity } from "../../domain/entities/user.entity";
 
-export const USER_REPO = Symbol('USER_REPO');
-
-export interface UserRepository {
+export interface UserRepositoryPort {
     create(user: UserEntity): Promise<void>;
     findById(id: string): Promise<UserEntity | null>;
     findByLogin(login: string): Promise<UserEntity | null>;

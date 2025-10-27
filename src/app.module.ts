@@ -3,13 +3,15 @@ import { AppController } from './app.controller';
 import { ConfigModule } from "@nestjs/config";
 import { AppService } from './app.service';
 import configuration from "./config/configuration";
+import {IdentityModule} from "./contexts/identity/identity.module";
 
 @Module({
   imports: [
       ConfigModule.forRoot({
           isGlobal: true,
           load: [configuration],
-      })
+      }),
+      //IdentityModule,
   ],
   controllers: [AppController],
   providers: [AppService],
