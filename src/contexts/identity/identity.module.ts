@@ -6,10 +6,12 @@ import { AuthController } from "./presentation/auth/auth.controller";
 import { ProfileController } from "./presentation/profile/profile.controller";
 import { UsersController } from "./presentation/users/users.controller";
 import {
-    GetMeUseCase, ListUsersUseCase,
+    GetMeUseCase,
+    ListUsersUseCase,
     LoginUseCase,
     RefreshTokenUseCase,
-    RegisterUserUseCase, SoftDeleteMeUseCase,
+    RegisterUserUseCase,
+    SoftDeleteMeUseCase,
     UpdateMeUseCase
 } from "./application/use-cases";
 import { BcryptHasherAdapter } from "./infrastructure/crypto/bcrypt.hasher.adapter";
@@ -37,7 +39,7 @@ const useCases = [
 @Module({
     imports: [
         PrismaModule,
-        JwtModule.register({}),
+        JwtModule,
         ConfigModule
     ],
     controllers: [
