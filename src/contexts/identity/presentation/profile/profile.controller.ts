@@ -17,7 +17,7 @@ export class ProfileController {
         private readonly _deleteMe: SoftDeleteMeUseCase
     ) {}
 
-    @Get('profile/my')
+    @Get('my')
     async get(
         @Req()
         req
@@ -27,7 +27,7 @@ export class ProfileController {
         return UserResponseDto.from(toView(user));
     }
 
-    @Patch('profile')
+    @Patch()
     async update(
         @Req()
         req,
@@ -39,7 +39,7 @@ export class ProfileController {
         return UserResponseDto.from(toView(user));
     }
 
-    @Delete('profile')
+    @Delete()
     async remove(
         @Req()
         req

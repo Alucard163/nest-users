@@ -4,14 +4,17 @@ import { Injectable } from "@nestjs/common";
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 @Injectable()
-export class JWTStrategy {
-    // доделать
-    // extends PassportStrategy(Strategy, 'jwt')
+export class JWTStrategy extends PassportStrategy(Strategy, 'jwt') {
     constructor(configService: ConfigService) {
-        // super({
-        //     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-        //     secretOrKey: configService.get<string>('jwt.accessSecret'),
-        // });
+        const secret = configService.get<string>('jwt.accessSecret');
+        if (!secret) {
+            throw new Error('JWT_ACCESS_SECRET is not defined in environment variables');
+        }
+        
+        super({
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            secretOrKey: secret,
+        });
     }
 
     validate(p: { sub: string; login: string }) {

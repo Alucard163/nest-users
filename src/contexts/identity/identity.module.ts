@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { PrismaModule } from "./infrastructure/prisma/prisma.module";
 import { JwtModule } from "@nestjs/jwt";
 import { ConfigModule } from "@nestjs/config";
+import { PassportModule } from "@nestjs/passport";
 import { AuthController } from "./presentation/auth/auth.controller";
 import { ProfileController } from "./presentation/profile/profile.controller";
 import { UsersController } from "./presentation/users/users.controller";
@@ -40,7 +41,8 @@ const useCases = [
     imports: [
         PrismaModule,
         JwtModule,
-        ConfigModule
+        ConfigModule,
+        PassportModule
     ],
     controllers: [
         ...controllers,

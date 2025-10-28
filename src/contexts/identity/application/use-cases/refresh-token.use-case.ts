@@ -13,7 +13,7 @@ export class RefreshTokenUseCase {
         private readonly _tokens: TokenServicePort,
     ) {}
 
-    async execute(input: { refreshToken: string }): Promise<{tokens: {access: string, refresh: string}}> {
+    async execute(input: { refreshToken: string }): Promise<{access: string, refresh: string}> {
         const payload = await this._tokens.verifyRefresh(input.refreshToken).catch(() => null);
         if (!payload) throw new UnauthorizedException();
 
@@ -26,6 +26,6 @@ export class RefreshTokenUseCase {
         user.currentHashedRt = await this._hasher.hash(pair.refresh);
         await this._users.save(user);
 
-        return { tokens: pair };
+        return pair;
     }
 }

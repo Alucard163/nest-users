@@ -26,6 +26,11 @@ export class UserPrismaRepository implements UserRepositoryPort {
         return row ? UserPrismaMapper.toDomain(row) : null;
     }
 
+    async findByEmail(email: string): Promise<UserEntity | null> {
+        const row = await this._prismaService.user.findFirst({ where: { email, deletedAt: null } });
+        return row ? UserPrismaMapper.toDomain(row) : null;
+    }
+
     async save(user: UserEntity): Promise<void> {
         await this._prismaService.user.update({
             where: { id: user.id }, data: UserPrismaMapper.toPersistence(user)

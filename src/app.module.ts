@@ -11,7 +11,7 @@ import {IdentityModule} from "./contexts/identity/identity.module";
           isGlobal: true,
           load: [configuration],
       }),
-      //IdentityModule,
+      IdentityModule,
   ],
   controllers: [AppController],
   providers: [AppService],
