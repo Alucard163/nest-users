@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Get, Patch, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from "../../../../shared/guards/jwt.guard";
+import { User } from "../../../../shared/decorators";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { GetMeUseCase, SoftDeleteMeUseCase, UpdateMeUseCase } from "../../application/use-cases";
 import { UpdateMeRequestDto } from "../http/dto/update-me.request.dto";
@@ -19,31 +20,27 @@ export class ProfileController {
 
     @Get('my')
     async get(
-        @Req()
-        req
+        @User('userId') userId: string
     ) {
-        const user = await this._getMe.execute({ userId: req.user.userId });
+        const user = await this._getMe.execute({ userId });
 
         return UserResponseDto.from(toView(user));
     }
 
     @Patch()
     async update(
-        @Req()
-        req,
-        @Body()
-        dto: UpdateMeRequestDto
+        @User('userId') userId: string,
+        @Body() dto: UpdateMeRequestDto
     ) {
-        const user = await this._updateMe.execute({ userId: req.user.userId, ...dto });
+        const user = await this._updateMe.execute({ userId, ...dto });
 
         return UserResponseDto.from(toView(user));
     }
 
     @Delete()
     async remove(
-        @Req()
-        req
+        @User('userId') userId: string
     ) {
-        return await this._deleteMe.execute({ userId: req.user.userId });
+        return await this._deleteMe.execute({ userId });
     }
 }
