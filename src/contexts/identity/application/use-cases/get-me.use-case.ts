@@ -11,10 +11,10 @@ export class GetMeUseCase {
     ) {}
 
     async execute(input: { userId: string }): Promise<UserEntity> {
-        const u = await this._users.findById(input.userId);
+        const user = await this._users.findById(input.userId);
 
-        if (!u) throw new NotFoundException();
+        if (!user) throw new NotFoundException();
 
-        return u;
+        return user;
     }
 }

@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, Patch, Req, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from "../../../../shared/guards/jwt.guard";
+import { Body, Controller, Delete, Get, Patch } from '@nestjs/common';
+import { User } from "../../../../shared/decorators";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { GetMeUseCase, SoftDeleteMeUseCase, UpdateMeUseCase } from "../../application/use-cases";
 import { UpdateMeRequestDto } from "../http/dto/update-me.request.dto";
@@ -8,42 +8,37 @@ import {toView} from "../../application/dto/user.view";
 
 @ApiTags('Profile')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
 @Controller('profile')
 export class ProfileController {
     constructor(
-        private readonly _getMe: GetMeUseCase,
-        private readonly _updateMe: UpdateMeUseCase,
-        private readonly _deleteMe: SoftDeleteMeUseCase
+        private readonly getMe: GetMeUseCase,
+        private readonly updateMe: UpdateMeUseCase,
+        private readonly deleteMe: SoftDeleteMeUseCase
     ) {}
 
     @Get('my')
     async get(
-        @Req()
-        req
+        @User('userId') userId: string
     ) {
-        const user = await this._getMe.execute({ userId: req.user.userId });
+        const user = await this.getMe.execute({ userId });
 
         return UserResponseDto.from(toView(user));
     }
 
     @Patch()
     async update(
-        @Req()
-        req,
-        @Body()
-        dto: UpdateMeRequestDto
+        @User('userId') userId: string,
+        @Body() dto: UpdateMeRequestDto
     ) {
-        const user = await this._updateMe.execute({ userId: req.user.userId, ...dto });
+        const user = await this.updateMe.execute({ userId, ...dto });
 
         return UserResponseDto.from(toView(user));
     }
 
     @Delete()
     async remove(
-        @Req()
-        req
+        @User('userId') userId: string
     ) {
-        return await this._deleteMe.execute({ userId: req.user.userId });
+        return await this.deleteMe.execute({ userId });
     }
 }
