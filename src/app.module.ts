@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
 import { ConfigModule } from "@nestjs/config";
-import { AppService } from './app.service';
+import { APP_GUARD } from '@nestjs/core';
 import configuration from "./config/configuration";
-import {IdentityModule} from "./contexts/identity/identity.module";
+import { IdentityModule } from "./contexts/identity/identity.module";
+import { HealthController } from './shared/controllers/health.controller';
+import { JwtAuthGuard } from './shared/guards/jwt.guard';
 
 @Module({
   imports: [
@@ -13,7 +14,12 @@ import {IdentityModule} from "./contexts/identity/identity.module";
       }),
       IdentityModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [HealthController],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

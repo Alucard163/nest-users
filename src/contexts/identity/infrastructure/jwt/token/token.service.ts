@@ -5,22 +5,22 @@ import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class JwtTokenService implements TokenServicePort {
-    constructor(private readonly jwt: JwtService, private readonly cfg: ConfigService) {}
+    constructor(private readonly jwtService: JwtService, private readonly configService: ConfigService) {}
 
     async issuePair(userId: string, login: string) {
-        const a = await this.jwt.signAsync({ sub: userId, login }, {
-            secret: this.cfg.get<string>('jwt.accessSecret'),
-            expiresIn: this.cfg.get('jwt.accessExp'),
+        const accessData = await this.jwtService.signAsync({ sub: userId, login }, {
+            secret: this.configService.get<string>('jwt.accessSecret'),
+            expiresIn: this.configService.get('jwt.accessExp'),
         });
-        const r = await this.jwt.signAsync({ sub: userId, login }, {
-            secret: this.cfg.get<string>('jwt.refreshSecret'),
-            expiresIn: this.cfg.get('jwt.refreshExp'),
+        const refreshData = await this.jwtService.signAsync({ sub: userId, login }, {
+            secret: this.configService.get<string>('jwt.refreshSecret'),
+            expiresIn: this.configService.get('jwt.refreshExp'),
         });
-        return { access: a, refresh: r };
+        return { access: accessData, refresh: refreshData };
     }
 
 
     verifyRefresh(token: string) {
-        return this.jwt.verifyAsync(token, { secret: this.cfg.get<string>('jwt.refreshSecret') }) as any;
+        return this.jwtService.verifyAsync(token, { secret: this.configService.get<string>('jwt.refreshSecret') }) as any;
     }
 }

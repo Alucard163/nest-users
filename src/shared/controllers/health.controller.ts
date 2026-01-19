@@ -1,19 +1,19 @@
 import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Public } from '../decorators';
 
 @ApiTags('Health')
 @Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) {}
-
+export class HealthController {
+  @Public()
   @Get()
   @ApiOperation({ summary: 'Приветственное сообщение' })
   @ApiResponse({ status: 200, description: 'Возвращает приветственное сообщение' })
   getHello(): string {
-    return this.appService.getHello();
+    return 'Привет мир!';
   }
 
+  @Public()
   @Get('health')
   @ApiOperation({ summary: 'Health чек' })
   @ApiResponse({ 
@@ -29,7 +29,7 @@ export class AppController {
       }
     }
   })
-  healthCheck() {
+  healthCheck(): { status: string; timestamp: string; uptime: number; environment: string } {
     return {
       status: 'ok',
       timestamp: new Date().toISOString(),

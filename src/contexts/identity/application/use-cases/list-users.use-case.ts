@@ -10,7 +10,7 @@ export class ListUsersUseCase {
         private readonly _users: UserRepositoryPort
     ) {}
 
-    async execute(input: { q?: string; page: number; limit: number }):  Promise<{items: UserEntity[], total: number}> {
+    async execute(input: { query?: string; page: number; limit: number }):  Promise<{items: UserEntity[], total: number}> {
         return await this._users.search(input);
     }
 }
