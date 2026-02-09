@@ -6,7 +6,7 @@ export class QueryUsersRequestDto {
     @ApiPropertyOptional()
     @IsOptional()
     @IsString()
-    query?: string;
+    q?: string;
 
     @ApiPropertyOptional({ default: 1 })
     @Type(() => Number)
