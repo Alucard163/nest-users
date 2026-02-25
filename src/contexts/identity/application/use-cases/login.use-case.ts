@@ -6,6 +6,7 @@ import type {
   TokenServicePort,
 } from '../ports';
 import { HASHER, TOKEN_SERVICE, USER_REPO } from '../constants/constants';
+import { UserEntity } from '../../domain/entities/user.entity';
 
 @Injectable()
 export class LoginUseCase {
@@ -18,7 +19,7 @@ export class LoginUseCase {
     private readonly tokens: TokenServicePort,
   ) {}
 
-  async execute(input: { login: string; password: string }) {
+  async execute(input: { login: string; password: string }): Promise<{ user: UserEntity; tokens: { access: string; refresh: string } }> {
     const user = await this.users.findByLogin(input.login);
     if (!user || user.isDeleted)
       throw new UnauthorizedException(

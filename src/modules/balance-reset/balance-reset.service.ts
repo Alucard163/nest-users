@@ -5,10 +5,10 @@ import type { Job, Queue } from 'bull'
 
 import { BALANCE_RESET_JOB_NAME, BALANCE_RESET_QUEUE_NAME } from './balance-reset.constants'
 
-@Injectable()
 /**
  * Сервис постановки задач обнуления балансов в очередь.
  */
+@Injectable()
 export class BalanceResetService {
     private readonly logger: Logger = new Logger(BalanceResetService.name)
 

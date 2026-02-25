@@ -24,12 +24,12 @@ export class RegisterUserUseCase {
     password: string;
     age: number;
     about: string;
-  }) {
-    const existsByLogin = await this.users.findByLogin(input.login);
+  }): Promise<{ user: UserEntity; tokens: { access: string; refresh: string } }> {
+    const existsByLogin = await this.users.findByLoginIncludeDeleted(input.login);
     if (existsByLogin)
       throw new ConflictException('Такой логин уже существует');
 
-    const existsByEmail = await this.users.findByEmail(input.email);
+    const existsByEmail = await this.users.findByEmailIncludeDeleted(input.email);
     if (existsByEmail)
       throw new ConflictException('Такой email уже существует');
 

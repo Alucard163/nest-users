@@ -11,8 +11,8 @@ describe('RegisterUserUseCase', () => {
 
     beforeEach(async () => {
         userRepo = {
-            findByLogin: jest.fn(),
-            findByEmail: jest.fn(),
+            findByLoginIncludeDeleted: jest.fn(),
+            findByEmailIncludeDeleted: jest.fn(),
             create: jest.fn(),
             save: jest.fn(),
         };
@@ -51,8 +51,8 @@ describe('RegisterUserUseCase', () => {
         };
 
         it('should successfully register a new user', async () => {
-            userRepo.findByLogin.mockResolvedValue(null);
-            userRepo.findByEmail.mockResolvedValue(null);
+            userRepo.findByLoginIncludeDeleted.mockResolvedValue(null);
+            userRepo.findByEmailIncludeDeleted.mockResolvedValue(null);
             hasher.hash.mockResolvedValue('hashedPassword');
             
             const savedUser = {
@@ -77,8 +77,8 @@ describe('RegisterUserUseCase', () => {
 
             const result = await useCase.execute(registerDto);
 
-            expect(userRepo.findByLogin).toHaveBeenCalledWith(registerDto.login);
-            expect(userRepo.findByEmail).toHaveBeenCalledWith(registerDto.email);
+            expect(userRepo.findByLoginIncludeDeleted).toHaveBeenCalledWith(registerDto.login);
+            expect(userRepo.findByEmailIncludeDeleted).toHaveBeenCalledWith(registerDto.email);
             expect(hasher.hash).toHaveBeenCalled();
             expect(tokenService.issuePair).toHaveBeenCalled();
             expect(userRepo.create).toHaveBeenCalled();
@@ -90,13 +90,13 @@ describe('RegisterUserUseCase', () => {
         });
 
         it('should throw ConflictException if login already exists', async () => {
-            userRepo.findByLogin.mockResolvedValue({ id: 'existing-user' });
+            userRepo.findByLoginIncludeDeleted.mockResolvedValue({ id: 'existing-user' });
 
             await expect(useCase.execute(registerDto)).rejects.toThrow(ConflictException);
             await expect(useCase.execute(registerDto)).rejects.toThrow('Такой логин уже существует');
             
-            expect(userRepo.findByLogin).toHaveBeenCalledWith(registerDto.login);
-            expect(userRepo.findByEmail).not.toHaveBeenCalled();
+            expect(userRepo.findByLoginIncludeDeleted).toHaveBeenCalledWith(registerDto.login);
+            expect(userRepo.findByEmailIncludeDeleted).not.toHaveBeenCalled();
             expect(hasher.hash).not.toHaveBeenCalled();
         });
 

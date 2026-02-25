@@ -10,15 +10,15 @@ export class JwtTokenService implements TokenServicePort {
     private readonly configService: ConfigService,
   ) {}
 
-  async issuePair(userId: string, login: string) {
-    const accessData = await this.jwtService.signAsync(
+  async issuePair(userId: string, login: string): Promise<{ access: string; refresh: string }> {
+    const accessData: string = await this.jwtService.signAsync(
       { sub: userId, login },
       {
         secret: this.configService.get<string>('jwt.accessSecret'),
         expiresIn: this.configService.get('jwt.accessExp'),
       },
     );
-    const refreshData = await this.jwtService.signAsync(
+    const refreshData: string = await this.jwtService.signAsync(
       { sub: userId, login },
       {
         secret: this.configService.get<string>('jwt.refreshSecret'),
@@ -28,9 +28,9 @@ export class JwtTokenService implements TokenServicePort {
     return { access: accessData, refresh: refreshData };
   }
 
-  verifyRefresh(token: string) {
-    return this.jwtService.verifyAsync(token, {
+  async verifyRefresh(token: string): Promise<{ sub: string; login: string }> {
+    return this.jwtService.verifyAsync<{ sub: string; login: string }>(token, {
       secret: this.configService.get<string>('jwt.refreshSecret'),
-    }) as any;
+    });
   }
 }

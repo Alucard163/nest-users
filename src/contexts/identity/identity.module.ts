@@ -22,7 +22,8 @@ import {
     UploadAvatarUseCase
 } from "./application/use-cases";
 import { BcryptHasherAdapter } from "./infrastructure/crypto/bcrypt.hasher.adapter";
-import { AVATAR_REPO, FILE_STORAGE, HASHER, TOKEN_SERVICE, USER_REPO } from "./application/constants/constants";
+import { AVATAR_REPO, CACHE_SERVICE, FILE_STORAGE, HASHER, TOKEN_SERVICE, USER_REPO } from "./application/constants/constants";
+import { RedisCacheService } from '../../shared/cache/redis-cache.service';
 import { UserPrismaRepository } from "./infrastructure/prisma/user.prisma.repository";
 import { AvatarPrismaRepository } from './infrastructure/prisma/avatar.prisma.repository';
 import { JwtTokenService } from "./infrastructure/jwt/token/token.service";
@@ -70,6 +71,7 @@ const useCases = [
         { provide: TOKEN_SERVICE, useClass: JwtTokenService },
         { provide: HASHER, useClass: BcryptHasherAdapter },
         { provide: FILE_STORAGE, useClass: S3Service },
+        { provide: CACHE_SERVICE, useExisting: RedisCacheService },
         JWTStrategy,
     ]
 })

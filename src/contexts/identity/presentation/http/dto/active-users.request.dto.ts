@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsInt, Min } from 'class-validator'
+import { IsInt, Max, Min } from 'class-validator'
 
 import { ACTIVE_USERS_DEFAULTS } from './active-users.defaults'
 
@@ -15,6 +15,7 @@ export class ActiveUsersRequestDto {
     @Type(() => Number)
     @IsInt()
     @Min(0)
+    @Max(150)
     maxAge: number = ACTIVE_USERS_DEFAULTS.maxAge
 
     @ApiPropertyOptional({ default: ACTIVE_USERS_DEFAULTS.page })
@@ -27,5 +28,6 @@ export class ActiveUsersRequestDto {
     @Type(() => Number)
     @IsInt()
     @Min(1)
+    @Max(100)
     limit: number = ACTIVE_USERS_DEFAULTS.limit
 }

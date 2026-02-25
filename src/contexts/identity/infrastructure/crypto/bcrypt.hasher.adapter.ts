@@ -4,10 +4,10 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class BcryptHasherAdapter implements HasherPort {
-  hash(v: string) {
+  hash(v: string): Promise<string> {
     return bcrypt.hash(v, 12);
   }
-  compare(v: string, h: string) {
+  compare(v: string, h: string): Promise<boolean> {
     return bcrypt.compare(v, h);
   }
 }

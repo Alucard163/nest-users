@@ -4,14 +4,14 @@ import {
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import type { FileStoragePort, UploadFileInput } from '../../contexts/identity/application/ports';
 import type { S3Config, UploadObjectInput } from './s3.types';
 
 @Injectable()
-export class S3Service implements FileStoragePort {
+export class S3Service implements FileStoragePort, OnModuleInit {
   private readonly config: S3Config;
   private readonly client: S3Client;
 
@@ -28,8 +28,11 @@ export class S3Service implements FileStoragePort {
     });
   }
 
-  public async uploadObject(input: UploadObjectInput): Promise<void> {
+  public async onModuleInit(): Promise<void> {
     await this.ensureBucketExists(this.config.bucket);
+  }
+
+  public async uploadObject(input: UploadObjectInput): Promise<void> {
     await this.client.send(
       new PutObjectCommand({
         Bucket: this.config.bucket,

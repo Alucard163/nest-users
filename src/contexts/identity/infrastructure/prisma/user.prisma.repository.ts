@@ -45,7 +45,8 @@ export class UserPrismaRepository implements UserRepositoryPort {
     });
   }
 
-  async search({ q, page, limit }) {
+  async search(params: { q?: string; page: number; limit: number }): Promise<{ items: UserEntity[]; total: number }> {
+    const { q, page, limit } = params;
     const where = {
       deletedAt: null,
       ...(q ? { login: { contains: q, mode: 'insensitive' as const } } : {}),
@@ -158,6 +159,20 @@ export class UserPrismaRepository implements UserRepositoryPort {
     return { items, total };
   }
 
+  async findByLoginIncludeDeleted(login: string): Promise<UserEntity | null> {
+    const row = await this.prismaService.user.findFirst({
+      where: { login },
+    });
+    return row ? UserPrismaMapper.toDomain(row) : null;
+  }
+
+  async findByEmailIncludeDeleted(email: string): Promise<UserEntity | null> {
+    const row = await this.prismaService.user.findFirst({
+      where: { email },
+    });
+    return row ? UserPrismaMapper.toDomain(row) : null;
+  }
+
   public async resetAllBalances(): Promise<number> {
     const result = await this.prismaService.user.updateMany({
       where: { deletedAt: null },
@@ -170,34 +185,30 @@ export class UserPrismaRepository implements UserRepositoryPort {
     params: TransferBalanceParams,
   ): Promise<TransferBalanceResult> {
     const amount: Prisma.Decimal = new Prisma.Decimal(params.amount);
-    try {
-      return await this.prismaService.$transaction(
-        async (
-          tx: Prisma.TransactionClient,
-        ): Promise<TransferBalanceResult> => {
-          const senderRows = await tx.$queryRaw<{ id: string; balance: Prisma.Decimal }[]>(
-            Prisma.sql`SELECT id, balance FROM "User" WHERE id = ${params.fromUserId} AND "deletedAt" IS NULL FOR UPDATE`,
-          );
-          if (senderRows.length === 0) return { status: 'SENDER_NOT_FOUND' as const };
-          const senderBalance = new Prisma.Decimal(senderRows[0].balance);
-          if (senderBalance.lessThan(amount)) return { status: 'INSUFFICIENT_FUNDS' as const };
-          const receiverRows = await tx.$queryRaw<{ id: string }[]>(
-            Prisma.sql`SELECT id FROM "User" WHERE id = ${params.toUserId} AND "deletedAt" IS NULL FOR UPDATE`,
-          );
-          if (receiverRows.length === 0) return { status: 'RECEIVER_NOT_FOUND' as const };
-          await tx.user.update({
-            where: { id: params.fromUserId },
-            data: { balance: { decrement: amount } },
-          });
-          await tx.user.update({
-            where: { id: params.toUserId },
-            data: { balance: { increment: amount } },
-          });
-          return { status: 'OK' as const };
-        },
-      );
-    } catch (e: unknown) {
-      throw e;
-    }
+    return this.prismaService.$transaction(
+      async (
+        tx: Prisma.TransactionClient,
+      ): Promise<TransferBalanceResult> => {
+        const senderRows = await tx.$queryRaw<{ id: string; balance: Prisma.Decimal }[]>(
+          Prisma.sql`SELECT id, balance FROM "User" WHERE id = ${params.fromUserId} AND "deletedAt" IS NULL FOR UPDATE`,
+        );
+        if (senderRows.length === 0) return { status: 'SENDER_NOT_FOUND' as const };
+        const senderBalance = new Prisma.Decimal(senderRows[0].balance);
+        if (senderBalance.lessThan(amount)) return { status: 'INSUFFICIENT_FUNDS' as const };
+        const receiverRows = await tx.$queryRaw<{ id: string }[]>(
+          Prisma.sql`SELECT id FROM "User" WHERE id = ${params.toUserId} AND "deletedAt" IS NULL FOR UPDATE`,
+        );
+        if (receiverRows.length === 0) return { status: 'RECEIVER_NOT_FOUND' as const };
+        await tx.user.update({
+          where: { id: params.fromUserId },
+          data: { balance: { decrement: amount } },
+        });
+        await tx.user.update({
+          where: { id: params.toUserId },
+          data: { balance: { increment: amount } },
+        });
+        return { status: 'OK' as const };
+      },
+    );
   }
 }

@@ -46,12 +46,14 @@ export class HttpCacheInterceptor implements NestInterceptor {
     );
     const request = context.switchToHttp().getRequest<Request>();
     const queryString = this.buildQueryString(request.query);
+    const userId: string | undefined = (request as Request & { user?: { userId?: string } }).user?.userId;
+    const userSegment: string = userId ? `:u${userId}` : '';
     let cacheKey: string;
     if (isVersioned) {
       const version = await this.cache.getNumber(USERS_LIST_CACHE_VERSION_KEY, 0);
       cacheKey = `${cacheKeyPrefix}:v${version}:${queryString}`;
     } else {
-      cacheKey = `${cacheKeyPrefix}:${queryString}`;
+      cacheKey = `${cacheKeyPrefix}${userSegment}:${queryString}`;
     }
     const cached = await this.cache.getJson<unknown>(cacheKey);
     if (cached) return of(cached);

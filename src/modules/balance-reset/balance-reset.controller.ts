@@ -3,12 +3,12 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 
 import { BalanceResetService } from './balance-reset.service'
 
-@ApiTags('Balance Reset')
-@ApiBearerAuth()
-@Controller('balance-reset')
 /**
  * Контроллер для постановки задачи обнуления балансов всех пользователей в очередь.
  */
+@ApiTags('Balance Reset')
+@ApiBearerAuth()
+@Controller('balance-reset')
 export class BalanceResetController {
     public constructor(private readonly service: BalanceResetService) {}
 

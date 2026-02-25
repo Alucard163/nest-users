@@ -6,11 +6,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { USER_REPO } from '../constants/constants';
-import { RedisCacheService } from '../../../../shared/cache/redis-cache.service';
-import { USERS_LIST_CACHE_VERSION_KEY } from '../../../../shared/cache/redis-cache.constants';
-import { buildProfileMyCacheKey } from '../../../../shared/cache/redis-cache.keys';
-import type { UserRepositoryPort } from '../ports';
+import { CACHE_SERVICE, USER_REPO } from '../constants/constants';
+import type { CachePort, UserRepositoryPort } from '../ports';
 import type { TransferBalanceResult as RepoTransferBalanceResult } from '../ports/user.repository.balance.types';
 
 import type {
@@ -30,7 +27,8 @@ const parseAmountToCents = (amount: string): bigint | null => {
   return BigInt(centsString);
 };
 
-@Injectable()
+const USERS_LIST_CACHE_VERSION_KEY: string = 'users:list:version';
+
 /**
  * Use-case перевода денег между пользователями.
  * Требования:
@@ -38,13 +36,15 @@ const parseAmountToCents = (amount: string): bigint | null => {
  * - баланс не уходит в отрицательное значение
  * - операция выполняется транзакционно
  */
+@Injectable()
 export class TransferBalanceUseCase {
   private readonly logger: Logger = new Logger(TransferBalanceUseCase.name);
 
   public constructor(
     @Inject(USER_REPO)
     private readonly users: UserRepositoryPort,
-    private readonly cache: RedisCacheService,
+    @Inject(CACHE_SERVICE)
+    private readonly cache: CachePort,
   ) {}
 
   /**
@@ -69,8 +69,8 @@ export class TransferBalanceUseCase {
       throw new NotFoundException('Получатель не найден');
     if (status.status === 'INSUFFICIENT_FUNDS')
       throw new BadRequestException('Недостаточно средств');
-    await this.cache.del(buildProfileMyCacheKey(input.fromUserId));
-    await this.cache.del(buildProfileMyCacheKey(input.toUserId));
+    await this.cache.del(`profile:my:${input.fromUserId}`);
+    await this.cache.del(`profile:my:${input.toUserId}`);
     await this.cache.incr(USERS_LIST_CACHE_VERSION_KEY);
     this.logger.log(
       `Transfer completed: from=${input.fromUserId} to=${input.toUserId} amount=${input.amount}`,
