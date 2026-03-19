@@ -15,6 +15,9 @@ export class UserResponseDto {
     age: number;
 
     @ApiProperty()
+    balance: string;
+
+    @ApiProperty()
     about: string;
 
     @ApiProperty()

@@ -5,3 +5,7 @@ export * from './refresh-token.use-case';
 export * from './register-user.use-case';
 export * from './soft-delete-me.use-case';
 export * from './update-me.use-case';
+export * from './upload-avatar.use-case';
+export * from './delete-avatar.use-case';
+export * from './list-active-users.use-case';
+export * from './transfer-balance.use-case';

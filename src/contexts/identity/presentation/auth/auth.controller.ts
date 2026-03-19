@@ -19,7 +19,7 @@ export class AuthController {
 
     @Public()
     @Post('register')
-    async register(@Body() dto: RegisterRequestDto) {
+    async register(@Body() dto: RegisterRequestDto): Promise<{ user: UserResponseDto; tokens: { access: string; refresh: string } }> {
         const { user, tokens } = await this.registerUserUseCase.execute(dto);
 
         return { user: UserResponseDto.from(toView(user)), tokens };
@@ -28,7 +28,7 @@ export class AuthController {
     @Public()
     @HttpCode(HttpStatus.OK)
     @Post('login')
-    async login(@Body() dto: LoginRequestDTO) {
+    async login(@Body() dto: LoginRequestDTO): Promise<{ user: UserResponseDto; tokens: { access: string; refresh: string } }> {
         const { user, tokens } = await this.loginUseCase.execute(dto);
 
         return { user: UserResponseDto.from(toView(user)), tokens };
@@ -37,7 +37,7 @@ export class AuthController {
     @Public()
     @HttpCode(HttpStatus.OK)
     @Post('refresh')
-    async refresh(@Body() dto: RefreshRequestDto) {
+    async refresh(@Body() dto: RefreshRequestDto): Promise<{ access: string; refresh: string }> {
         return this.refreshTokenUseCase.execute(dto);
     }
 }
