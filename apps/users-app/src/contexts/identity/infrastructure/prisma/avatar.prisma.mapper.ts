@@ -1,4 +1,4 @@
-import type { Avatar as AvatarRow } from '../../../../../generated/prisma';
+import type { Avatar as AvatarRow } from '../../../../../../../generated/prisma';
 
 import { AvatarEntity } from '../../domain/entities/avatar.entity';
 

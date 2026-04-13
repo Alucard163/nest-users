@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from "./infrastructure/prisma/prisma.module";
 import { JwtModule } from "@nestjs/jwt";
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { PassportModule } from "@nestjs/passport";
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AuthController } from "./presentation/auth/auth.controller";
 import { ProfileController } from "./presentation/profile/profile.controller";
 import { UsersController } from "./presentation/users/users.controller";
@@ -30,6 +31,10 @@ import { JwtTokenService } from "./infrastructure/jwt/token/token.service";
 import { JWTStrategy } from "./infrastructure/jwt/strategies/jwt.strategy";
 import { S3Module } from '../../providers/files/s3.module';
 import { S3Service } from '../../providers/files/s3.service';
+import {
+    TransferEventsProducer,
+    USERS_KAFKA_PRODUCER,
+} from './infrastructure/kafka/transfer-events.producer';
 
 const controllers = [
     AuthController,
@@ -59,7 +64,22 @@ const useCases = [
         JwtModule,
         ConfigModule,
         PassportModule,
-        S3Module
+        S3Module,
+        ClientsModule.registerAsync([
+            {
+                name: USERS_KAFKA_PRODUCER,
+                inject: [ConfigService],
+                useFactory: (configService: ConfigService) => ({
+                    transport: Transport.KAFKA,
+                    options: {
+                        client: {
+                            clientId: configService.get<string>('kafka.clientId') ?? 'users-app',
+                            brokers: configService.get<string[]>('kafka.brokers') ?? ['localhost:9092'],
+                        },
+                    },
+                }),
+            },
+        ])
     ],
     controllers: [
         ...controllers,
@@ -73,6 +93,7 @@ const useCases = [
         { provide: FILE_STORAGE, useClass: S3Service },
         { provide: CACHE_SERVICE, useExisting: RedisCacheService },
         JWTStrategy,
+        TransferEventsProducer,
     ]
 })
 export class IdentityModule {}

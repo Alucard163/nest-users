@@ -4,7 +4,7 @@ import { FindMostActiveUsersParams, MostActiveUserWithLastAvatar, UserRepository
 import { UserEntity } from '../../domain/entities/user.entity';
 import { PrismaService } from './prisma.service';
 import { UserPrismaMapper } from './user.prisma.mapper';
-import { Prisma } from '../../../../../generated/prisma';
+import { Prisma } from '../../../../../../../generated/prisma';
 import type { MostActiveUserRow } from './user.prisma.repository.types';
 
 @Injectable()
