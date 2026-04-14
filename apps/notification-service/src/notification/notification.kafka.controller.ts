@@ -14,14 +14,9 @@ export class NotificationKafkaController {
   async handleTransferCompleted(
     @Payload() event: TransferNotificationEvent,
   ): Promise<void> {
-    const payload: TransferNotificationEvent =
-      'value' in (event as unknown as { value?: TransferNotificationEvent }) &&
-      (event as unknown as { value?: TransferNotificationEvent }).value
-        ? (event as unknown as { value: TransferNotificationEvent }).value
-        : event;
     this.logger.log(
-      `Kafka event received: from=${payload.fromUserId} to=${payload.toUserId} amount=${payload.amount}`,
+      `Kafka event received: from=${event.fromUserId} to=${event.toUserId} amount=${event.amount}`,
     );
-    await this.notificationService.processTransferEvent(payload);
+    await this.notificationService.processTransferEvent(event);
   }
 }

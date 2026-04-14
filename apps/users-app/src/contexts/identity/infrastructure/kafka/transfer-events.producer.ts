@@ -1,5 +1,12 @@
-import { Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
+import { lastValueFrom } from 'rxjs';
 import {
   BALANCE_TRANSFER_COMPLETED_TOPIC,
   TransferNotificationEvent,
@@ -25,8 +32,10 @@ export class TransferEventsProducer implements OnModuleInit, OnModuleDestroy {
     await this.kafkaClient.close();
   }
 
-  emitTransferCompleted(event: TransferNotificationEvent): void {
-    this.kafkaClient.emit(BALANCE_TRANSFER_COMPLETED_TOPIC, event);
+  async emitTransferCompleted(event: TransferNotificationEvent): Promise<void> {
+    await lastValueFrom(
+      this.kafkaClient.emit(BALANCE_TRANSFER_COMPLETED_TOPIC, event),
+    );
     this.logger.log(
       `Transfer event emitted: from=${event.fromUserId} to=${event.toUserId} amount=${event.amount}`,
     );

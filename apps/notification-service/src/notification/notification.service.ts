@@ -16,11 +16,8 @@ export class NotificationService {
     private readonly notificationGateway: NotificationGateway,
   ) {}
 
-  async sendManualNotification(
-    userId: string,
-    message: string,
-  ): Promise<{ success: true }> {
-    await this.notificationGateway.sendNotification(userId, { data: message });
+  sendManualNotification(userId: string, message: string): { success: true } {
+    this.notificationGateway.sendNotification(userId, { data: message });
     return { success: true };
   }
 
@@ -45,8 +42,8 @@ export class NotificationService {
       transferredAt: transferredAt.toISOString(),
     };
 
-    await this.notificationGateway.sendNotification(event.fromUserId, senderPayload);
-    await this.notificationGateway.sendNotification(event.toUserId, receiverPayload);
+    this.notificationGateway.sendNotification(event.fromUserId, senderPayload);
+    this.notificationGateway.sendNotification(event.toUserId, receiverPayload);
 
     await this.notificationModel.insertMany([
       {

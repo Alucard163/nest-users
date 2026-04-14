@@ -7,9 +7,10 @@ export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
   @Post('send')
-  async sendNotification(
-    @Body() dto: SendNotificationDto,
-  ): Promise<{ success: true }> {
-    return this.notificationService.sendManualNotification(dto.userId, dto.message);
+  sendNotification(@Body() dto: SendNotificationDto): { success: true } {
+    return this.notificationService.sendManualNotification(
+      dto.userId,
+      dto.message,
+    );
   }
 }

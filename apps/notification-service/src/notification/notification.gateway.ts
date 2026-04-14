@@ -5,13 +5,11 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Inject, Logger } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Server, Socket } from 'socket.io';
 import { extractBearerToken } from '@app/common';
-
-export const NOTIFICATION_GATEWAY = 'NOTIFICATION_GATEWAY';
 
 @WebSocketGateway({
   cors: {
@@ -48,11 +46,14 @@ export class NotificationGateway
         throw new Error('Authorization header is missing');
       }
 
-      const payload = await this.jwtService.verifyAsync<{ sub: string }>(token, {
-        secret: this.configService.get<string>('jwt.accessSecret'),
-      });
+      const payload = await this.jwtService.verifyAsync<{ sub: string }>(
+        token,
+        {
+          secret: this.configService.get<string>('jwt.accessSecret'),
+        },
+      );
 
-      client.data.userId = payload.sub;
+      (client.data as { userId: string }).userId = payload.sub;
       await client.join(payload.sub);
       this.logger.log(`Client ${client.id} joined room ${payload.sub}`);
     } catch (error) {
@@ -63,11 +64,11 @@ export class NotificationGateway
     }
   }
 
-  async handleDisconnect(@ConnectedSocket() client: Socket): Promise<void> {
+  handleDisconnect(@ConnectedSocket() client: Socket): void {
     this.logger.log(`Client disconnected: ${client.id}`);
   }
 
-  async sendNotification(userId: string, data: Record<string, string>): Promise<void> {
+  sendNotification(userId: string, data: Record<string, string>): void {
     this.io.to(userId).emit('notification', data);
     this.logger.log(`Notification sent to user=${userId}`);
   }
