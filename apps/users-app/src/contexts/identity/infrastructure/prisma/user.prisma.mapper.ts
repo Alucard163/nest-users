@@ -1,7 +1,7 @@
 import { UserEntity } from '../../domain/entities/user.entity';
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '../../../../../generated/prisma';
-import type { User } from '../../../../../generated/prisma';
+import { Prisma } from '../../../../../../../generated/prisma';
+import type { User } from '../../../../../../../generated/prisma';
 
 @Injectable()
 export class UserPrismaMapper {

@@ -1,5 +1,9 @@
 export default () => ({
     port: parseInt(process.env.PORT ?? '3000', 10),
+    kafka: {
+        brokers: (process.env.KAFKA_BROKERS ?? 'localhost:9092').split(','),
+        clientId: process.env.KAFKA_CLIENT_ID ?? 'users-app',
+    },
     redis: {
         host: process.env.REDIS_HOST ?? 'localhost',
         port: parseInt(process.env.REDIS_PORT ?? '6380', 10),
