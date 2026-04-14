@@ -1,46 +1,50 @@
-version: "1.0"
+version: '1.0'
 services:
   postgres:
     image: docker.io/library/postgres:15
     container_name: nest-postgres
     restart: unless-stopped
+    networks: [app_network]
     environment:
       POSTGRES_USER: nest
       POSTGRES_PASSWORD: nest
       POSTGRES_DB: nestdb
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - pg_data:/var/lib/postgresql/data
   minio:
     image: minio/minio
     container_name: nest-minio
     restart: unless-stopped
+    networks: [app_network]
     command: server --console-address ":9001" /data
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     volumes:
       - minio_storage:/data
   redis:
     image: redis:alpine
     container_name: nest-redis
     restart: unless-stopped
+    networks: [app_network]
     env_file: .env
     command: >
       --requirepass ${REDIS_PASSWORD} --port ${REDIS_PORT}
     ports:
-      - "127.0.0.1:${REDIS_PORT}:${REDIS_PORT}"
+      - '127.0.0.1:${REDIS_PORT}:${REDIS_PORT}'
   kafka:
     image: confluentinc/cp-kafka:7.4.0
     container_name: kafka
     hostname: kafka
+    networks: [app_network]
     ports:
-      - "9092:9092"
-      - "29092:29092"
+      - '9092:9092'
+      - '29092:29092'
     environment:
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_NODE_ID: 1
@@ -53,15 +57,16 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       CLUSTER_ID: q1Sh-9_ISia_zwGINzRvyQ
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     container_name: kafka-ui
+    networks: [app_network]
     depends_on:
       - kafka
     ports:
-      - "8080:8080"
+      - '8080:8080'
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
@@ -69,10 +74,15 @@ services:
     image: mongo:7
     container_name: nest-mongo
     restart: unless-stopped
+    networks: [app_network]
     ports:
-      - "27017:27017"
+      - '27017:27017'
     volumes:
       - mongo_data:/data/db
+
+networks:
+  app_network: {}
+
 volumes:
   pg_data: {}
   minio_storage:
